@@ -4,6 +4,7 @@ from app.database import db
 from app.models.user import User
 import jwt
 import datetime
+import traceback  # Add this at the top
 
 login_api = Blueprint('login_api', __name__)
 
@@ -15,29 +16,28 @@ def get_secret_key():
 @login_api.route('/login', methods=['POST'])
 def login():
     try:
-        print("Login API called")  # Debugging
-        
         # Parse JSON data from request
         data = request.get_json()
-        print(f"Received Data: {data}")  # Debugging
-        
         email = data.get('email')
         password = data.get('password')
 
         # Validate input
         if not email or not password:
-            print("Missing email or password")  # Debugging
             return jsonify({"error": "Email and password are required"}), 400
+
+        print(f"Login attempt for email: {email}")  # Debugging
 
         # Check if user exists
         user = User.query.filter_by(email=email).first()
-        print(f"User found: {user}")  # Debugging
-        
         if not user:
+            print("User not found")  # Debugging
             return jsonify({"error": "Invalid email or password"}), 401
+
+        print("User found, checking password...")  # Debugging
 
         # Verify password
         if not check_password_hash(user.password, password):
+            print("Invalid password")  # Debugging
             return jsonify({"error": "Invalid email or password"}), 401
 
         # Generate JWT token
@@ -49,7 +49,6 @@ def login():
             get_secret_key(),
             algorithm="HS256"
         )
-        print(f"Generated Token: {token}")  # Debugging
 
         # Return user data
         user_data = {
@@ -61,8 +60,7 @@ def login():
             "differently_abled": user.differently_abled,
             "avatar": user.avatar
         }
-        print(f"User Data: {user_data}")  # Debugging
-        
+        print("Login successful")  # Debugging
         return jsonify({
             "message": "Login successful",
             "token": token,
@@ -70,5 +68,7 @@ def login():
         }), 200
 
     except Exception as e:
-        print(f"Error during login: {e}")  # Debugging
+        print(f"Error during login: {str(e)}")
+        traceback.print_exc()  # This will print the full error traceback
         return jsonify({"error": "An error occurred during login"}), 500
+
