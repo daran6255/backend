@@ -1,0 +1,14 @@
+## pip install -r requirements.txt
+
+## Initialize the migration directory:
+flask db init
+
+## Generate migration scripts:
+flask db migrate -m "Create user table"
+
+## Apply the migrations to the database:
+flask db upgrade
+
+flask db init  # Initializes the migrations folder
+flask db migrate -m "Initial migration"  # Creates the migration script
+flask db upgrade  # Applies the migration and creates the table
