@@ -26,8 +26,10 @@ def login():
 
         # Check if user exists
         user = User.query.filter_by(email=email).first()
+        print(f"User found: {user}")  # Debug print
         if not user:
             return jsonify({"error": "Invalid email or password"}), 401
+
 
         # Verify password
         if not check_password_hash(user.password, password):
